@@ -1,27 +1,32 @@
 ﻿using Server.Models;
 using Server.Models.DTOs;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Data;
 
 namespace Server.Services
 {
     public class ServerService
     {
         private UdpClient _udpClient;
+        private readonly object _lockObj = new object();
         private int _port;
-        public List<RegistrationDto> RegisteredClients { get; set; } = new List<RegistrationDto>();
+        public ObservableCollection<RegistrationDto> RegisteredClients { get; set; } = new ObservableCollection<RegistrationDto>();
         private Dictionary<string, int> _userScores = new Dictionary<string, int>();
 
         public event EventHandler<AnswerModel> AnswerReceived;
         public event EventHandler QuizFinished;
-        private readonly object _lock = new object();
+
         public ServerService(int port)
         {
             _port = port;
-            _udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, port));
+            _udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, _port));
+            BindingOperations.EnableCollectionSynchronization(RegisteredClients, _lockObj);
             var hilo = new Thread(new ThreadStart(ReceiveAnswersAsync))
             {
                 IsBackground = true
@@ -34,11 +39,17 @@ namespace Server.Services
 
         public async Task SendQuestionAsync(QuestionModel question)
         {
+
+            List<RegistrationDto> clientsCopy;
+
             var json = JsonSerializer.Serialize(question);
             var buffer = Encoding.UTF8.GetBytes(json);
             var endpoint = new IPEndPoint(0, 0);
+            //lock (_lockObj)
+            //{
+            //    clientsCopy = RegisteredClients.ToList();
+            //}
 
-          
             foreach (var item in RegisteredClients)
             {
 
@@ -71,8 +82,8 @@ namespace Server.Services
 
 
 
-                    // Actualiza desde el hilo UI
                     AgregarUsuario(dto);
+
 
 
 
@@ -128,11 +139,18 @@ namespace Server.Services
         }
         private void AgregarUsuario(RegistrationDto dto)
         {
-            // Evita duplicados si es necesario
+
             if (!RegisteredClients.Any(c => c.IPAddress == dto.IPAddress))
             {
-                RegisteredClients.Add(dto);
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    RegisteredClients.Add(dto);
+                });
+
+
             }
+
 
         }
     }

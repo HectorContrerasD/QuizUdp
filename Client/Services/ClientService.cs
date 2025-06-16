@@ -42,7 +42,7 @@ namespace Client.Services
             var json = JsonSerializer.Serialize(answer);
             var buffer = Encoding.UTF8.GetBytes(json);
 
-            var endpoint = new IPEndPoint(IPAddress.Parse(_serverIp), 5001);
+            var endpoint = new IPEndPoint(IPAddress.Parse(_serverIp), 5000);
             await _udpClient.SendAsync(buffer, buffer.Length, endpoint);
         }
 
@@ -56,7 +56,7 @@ namespace Client.Services
 
             var json = JsonSerializer.Serialize(registration);
             var buffer = Encoding.UTF8.GetBytes(json);
-            var endpoint = new IPEndPoint(IPAddress.Parse(_serverIp), 5001);
+            var endpoint = new IPEndPoint(IPAddress.Parse(_serverIp), 5000);
             _udpClient.Send(buffer, buffer.Length, endpoint);
         }
         private void ReceiveMessagesAsync()
