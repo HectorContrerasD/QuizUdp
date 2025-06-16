@@ -1,0 +1,52 @@
+﻿[
+  {
+    "Question": "¿Qué Pokémon evoluciona usando Piedra Agua?",
+    "Options": [ "Staryu", "Eevee", "Poliwhirl", "Shellder" ],
+    "CorrectAnswer": "Poliwhirl"
+  },
+  {
+    "Question": "¿Cuál es el Pokémon número 25 en la Pokédex Nacional?",
+    "Options": [ "Pikachu", "Raichu", "Nidoran♂", "Jigglypuff" ],
+    "CorrectAnswer": "Pikachu"
+  },
+  {
+    "Question": "¿Qué tipo es efectivo contra los Pokémon de tipo Dragón?",
+    "Options": [ "Hada", "Eléctrico", "Roca", "Volador" ],
+    "CorrectAnswer": "Hada"
+  },
+  {
+    "Question": "¿Qué Pokémon legendario es conocido como 'El Guardián de los Mares'?",
+    "Options": [ "Lugia", "Kyogre", "Suicune", "Manaphy" ],
+    "CorrectAnswer": "Kyogre"
+  },
+  {
+    "Question": "¿Qué Pokémon puede aprender el movimiento 'Flamethrower' (Lanzallamas)?",
+    "Options": [ "Charizard", "Arcanine", "Ninetales", "Todos los anteriores" ],
+    "CorrectAnswer": "Todos los anteriores"
+  },
+  {
+    "Question": "¿En qué región se introdujo por primera vez a Lucario?",
+    "Options": [ "Sinnoh", "Hoenn", "Unova", "Kalos" ],
+    "CorrectAnswer": "Sinnoh"
+  },
+  {
+    "Question": "¿Qué Pokémon tiene la habilidad 'Intimidate' (Intimidación) por defecto?",
+    "Options": [ "Gyarados", "Salamence", "Arcanine", "Todos los anteriores" ],
+    "CorrectAnswer": "Todos los anteriores"
+  },
+  {
+    "Question": "¿Qué Pokémon es conocido como 'El Pokémon Espejo'?",
+    "Options": [ "Ditto", "Mew", "Mewtwo", "Zorua" ],
+    "CorrectAnswer": "Ditto"
+  },
+  {
+    "Question": "¿Cuál es el Pokémon más pesado de todos?",
+    "Options": [ "Groudon", "Celesteela", "Wailord", "Eternatus" ],
+    "CorrectAnswer": "Celesteela"
+  },
+  {
+    "Question": "¿Qué Pokémon tiene la forma de Gigantamax más diferente a su forma normal?",
+    "Options": [ "Pikachu", "Eevee", "Meowth", "Charizard" ],
+    "CorrectAnswer": "Meowth"
+  }
+]

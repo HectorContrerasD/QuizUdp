@@ -1,0 +1,95 @@
+﻿<Window x:Class="Server.Views.ResultsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Server.Views"
+        xmlns:vm="clr-namespace:Server.ViewModels"
+        mc:Ignorable="d"
+        Title="Results" Height="450" Width="800" Background="#50000000">
+    <Window.DataContext>
+        <vm:ServerViewModel></vm:ServerViewModel>
+    </Window.DataContext>
+    <DockPanel Background="White">
+        <Border BorderBrush="Black" BorderThickness="0 0 0 3" DockPanel.Dock="Top">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#E83030" Offset="0.0"/>
+                    <GradientStop Color="#301020" Offset="1.0"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Label FontSize="20" HorizontalAlignment="Center" Foreground="White">¡Resultados!</Label>
+        </Border>
+        <StackPanel Background="#E83030" Width="400" DockPanel.Dock="Left">
+            <Border CornerRadius="4" Margin="0 20 0 0" Width="350" BorderBrush="#444444" BorderThickness="3">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,1" EndPoint="1,1">
+                        <GradientStop Color="#E83030" Offset="0"/>
+                        <GradientStop Color="#E83030" Offset="0"/>
+                        <GradientStop Color="white" Offset="0.1"/>
+                        <GradientStop Color="white" Offset="0.9"/>
+                        <GradientStop Color="#E83030" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Label Margin="10 0" HorizontalAlignment="Center" FontWeight="Bold">Registro de votos</Label>
+            </Border>
+            <Border Background="White" Height="200" CornerRadius="10" Margin="50 30" BorderBrush="#444444" BorderThickness="2" Padding="5 15">
+                <UniformGrid Rows="4" Columns="2">
+                    <UniformGrid.Resources>
+                        <Style TargetType="Label">
+                            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+                            <Setter Property="FontWeight" Value="Bold"></Setter>
+                            <Setter Property="FontSize" Value="20"></Setter>
+                        </Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+                            <Setter Property="FontSize" Value="20"></Setter>
+                            <Setter Property="FontFamily" Value="Consolas"></Setter>
+                        </Style>
+                    </UniformGrid.Resources>
+                    <Label Foreground="Orange">A</Label>
+                    <TextBlock>0</TextBlock>
+                    <Label Foreground="YellowGreen">B</Label>
+                    <TextBlock>5</TextBlock>
+                    <Label Foreground="DeepSkyBlue">C</Label>
+                    <TextBlock>0</TextBlock>
+                    <Label Foreground="red">D</Label>
+                    <TextBlock Text="{}">1</TextBlock>
+                  </UniformGrid>
+            </Border>
+        </StackPanel>
+        <StackPanel>
+            <Border CornerRadius="4" Margin="0 20 0 0" Width="350" BorderBrush="#444444" BorderThickness="3">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,1" EndPoint="1,1">
+                        <GradientStop Color="#E83030" Offset="0"/>
+                        <GradientStop Color="#E83030" Offset="0"/>
+                        <GradientStop Color="white" Offset="0.1"/>
+                        <GradientStop Color="white" Offset="0.9"/>
+                        <GradientStop Color="#E83030" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Label Margin="10 0" HorizontalAlignment="Center" FontWeight="Bold">Usuarios que acertaron la pregunta</Label>
+            </Border>
+            <DataGrid BorderBrush="Transparent" Margin="20" IsReadOnly="True" ItemsSource="{Binding UserScores}" AutoGenerateColumns="false">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Padding" Value="20 10"></Setter>
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,1" EndPoint="0,0">
+                                    <GradientStop Color="#E83030" Offset="0.0"/>
+                                    <GradientStop Color="White" Offset="0.5"/>
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding Key}" Header="Usuario" Width=".3*"></DataGridTextColumn>
+                    <DataGridTextColumn Binding="{Binding Value}" Header="Puntuación" Width=".2*"></DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+    </DockPanel>
+</Window>

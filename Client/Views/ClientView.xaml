@@ -1,0 +1,64 @@
+﻿<Window x:Class="Client.Views.ClientView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:Client.Views"
+             mc:Ignorable="d"
+            xmlns:vm="clr-namespace:Client.ViewModels"
+             d:DesignHeight="450" d:DesignWidth="800"
+        >
+    <Window.DataContext>
+        <vm:ClientViewModel></vm:ClientViewModel>
+    </Window.DataContext>
+    <DockPanel>
+        <DockPanel.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#E2E3E7" Offset="0"></GradientStop>
+                <GradientStop Color="#BA8F40" Offset="1"></GradientStop>
+            </LinearGradientBrush>
+        </DockPanel.Background>
+        <DockPanel.Resources>
+            <Style TargetType="Button">
+                <Setter Property="Background" Value="Transparent"></Setter>
+                <Setter Property="Foreground" Value="White"></Setter>
+                <Setter Property="FontSize" Value="18"></Setter>
+            </Style>
+            <Style TargetType="Border">
+                <Setter Property="CornerRadius" Value="15"></Setter>
+                <Setter Property="BorderBrush" Value="#333738"></Setter>
+                <Setter Property="BorderThickness" Value="4"></Setter>
+            </Style>
+        </DockPanel.Resources>
+        <UniformGrid DockPanel.Dock="Top" Height="250">
+            <Border Height="70" Width="330" Background="#F8F8D8" BorderThickness="6" BorderBrush="#506860">
+                <UniformGrid Columns="3" Rows="1" Margin="10">
+                    <Label FontSize="20">Nivel:</Label>
+                    <!--<TextBlock FontSize="20" Text="{Binding}">10</TextBlock>-->
+                    <ProgressBar Height="15"  Background="#64EC99" Margin="-10,12,0,11"/>
+                </UniformGrid>
+            </Border>
+            <Image Height="140" Source="/Assets/chari.png"></Image>
+            <Image Source="/Assets/torchi.png"></Image>
+        </UniformGrid>
+        <UniformGrid Rows="2" Height="200">
+            <Border Background="#F8F8F8" Height="100" HorizontalAlignment="Left" Width="750" Margin="20 0" BorderBrush="#A09576" BorderThickness="10">
+                <Label Name="question" Foreground="Black" IsEnabled="False" MaxWidth="700" HorizontalAlignment="Center" FontSize="20" Padding="10 5" Content="{Binding CurrentQuestion}"></Label>
+            </Border>
+            <UniformGrid Name="Options" Margin="20 10" Rows="2" VerticalAlignment="Top">
+                <Border Background="#DC3C34">
+                    <Button Command="{Binding SendAnswerCommand}" CommandParameter="{Binding CurrentOptions[0]}"></Button>
+                </Border>
+                <Border Background="#E0982C">
+                    <Button Command="{Binding SendAnswerCommand}" CommandParameter="{Binding CurrentOptions[1]}"></Button>
+                </Border>
+                <Border Background="#E0982C">
+                    <Button Command="{Binding SendAnswerCommand}" CommandParameter="{Binding CurrentOptions[2]}"></Button>
+                </Border>
+                <Border Background="#DC3C34">
+                    <Button Command="{Binding SendAnswerCommand}" CommandParameter="{Binding CurrentOptions[3]}"></Button>
+                </Border>
+            </UniformGrid>
+        </UniformGrid>
+    </DockPanel>
+</Window>
