@@ -9,13 +9,29 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\chari.png" />
+    <None Remove="Assets\chariespalda.png" />
+    <None Remove="Assets\torchi.png" />
+    <None Remove="Assets\torchifrente.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MvvmLightLibs" Version="5.4.1.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Assets\chari.png">
+    <Resource Include="Assets\chari.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Resource>
+    <Resource Include="Assets\chariespalda.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\torchi.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\torchifrente.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>

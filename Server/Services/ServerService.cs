@@ -20,7 +20,7 @@ namespace Server.Services
         private Dictionary<string, int> _userScores = new Dictionary<string, int>();
 
         public event EventHandler<AnswerModel> AnswerReceived;
-        public event EventHandler QuizFinished;
+        public event EventHandler<Dictionary<string,int>> QuizFinished;
 
         public ServerService(int port)
         {
@@ -119,7 +119,7 @@ namespace Server.Services
             }
 
 
-            QuizFinished?.Invoke(this, EventArgs.Empty);
+            QuizFinished?.Invoke(this, _userScores);
         }
 
 

@@ -15,7 +15,7 @@ using System.Windows.Input;
 
 namespace Client.ViewModels
 {
-    public class ClientViewModel
+    public class ClientViewModel:INotifyPropertyChanged
     {
         private ClientService _clientService;
         private string _serverIp;

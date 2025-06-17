@@ -3,11 +3,12 @@ using Newtonsoft.Json;
 using Server.Models;
 using Server.Models.DTOs;
 using Server.Services;
-
+using Server.Views;
 using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Timers;
+using System.Windows;
 using System.Windows.Input;
 
 
@@ -62,6 +63,13 @@ namespace Server.ViewModels
 
 
             StartQuizCommand = new RelayCommand(StartQuiz);
+        }
+
+        private void OnQuizFinished(object? sender, Dictionary<string, int> e)
+        {
+            var resulsView = new ResultsView();
+            resulsView.Show();
+            Application.Current.MainWindow.Close();
         }
 
         private List<QuestionModel> LoadQuestionsFromJson(string filePath)
@@ -126,10 +134,12 @@ namespace Server.ViewModels
             _serverService.UpdateUserScore(answer.UserName, isCorrect);
         }
 
-        private void OnQuizFinished(object sender, EventArgs e)
-        {
-
-        }
+        //private void OnQuizFinished(object sender, EventArgs e)
+        //{
+        //    var resulsView = new ResultsView();
+        //    resulsView.Show();
+        //    Application.Current.MainWindow.Close();
+        //}
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName = null)
