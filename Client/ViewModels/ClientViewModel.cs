@@ -81,7 +81,7 @@ namespace Client.ViewModels
         {
             
             ConnectCommand = new RelayCommand(Connect);
-            SendAnswerCommand = new RelayCommand(SendAnswer);
+            SendAnswerCommand = new RelayCommand<string>(SendAnswer);
          
             //_clientService.QuestionReceived += OnQuestionReceived;
             //_clientService.ResultReceived += OnResultReceived;
@@ -118,13 +118,14 @@ namespace Client.ViewModels
             Application.Current.MainWindow.Close();
         }
 
-        private void SendAnswer()
+        private void SendAnswer(string resp)
         {
           
             var answer = new AnswerMessageDTO
             {
                 UserName = UserName,
-                SelectedOption = "Alola" 
+                SelectedOption = resp 
+              
             };
 
             _clientService.SendAnswerAsync(answer);
