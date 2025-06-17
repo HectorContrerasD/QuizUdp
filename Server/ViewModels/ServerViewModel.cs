@@ -65,11 +65,13 @@ namespace Server.ViewModels
             StartQuizCommand = new RelayCommand(StartQuiz);
         }
 
-        private void OnQuizFinished(object? sender, Dictionary<string, int> e)
+        private void OnQuizFinished(object? sender, List<RegistrationDto> clients)
         {
-            var resulsView = new ResultsView();
-            resulsView.Show();
-            Application.Current.MainWindow.Close();
+            foreach (var item in clients)
+            {
+
+                _serverService.SendScoresClients(item.IPAddress, item.CorrectAnswers);
+            }
         }
 
         private List<QuestionModel> LoadQuestionsFromJson(string filePath)

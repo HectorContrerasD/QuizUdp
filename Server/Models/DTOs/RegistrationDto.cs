@@ -10,5 +10,6 @@ namespace Server.Models.DTOs
     {
         public string UserName { get; set; }
         public string IPAddress { get; set; }
+        public int CorrectAnswers { get; set; }
     }
 }

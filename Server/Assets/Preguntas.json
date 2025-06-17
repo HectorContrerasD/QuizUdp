@@ -23,30 +23,30 @@
     "Question": "¿Qué Pokémon puede aprender el movimiento 'Flamethrower' (Lanzallamas)?",
     "Options": [ "Charizard", "Arcanine", "Ninetales", "Todos los anteriores" ],
     "CorrectAnswer": "Todos los anteriores"
-  },
-  {
-    "Question": "¿En qué región se introdujo por primera vez a Lucario?",
-    "Options": [ "Sinnoh", "Hoenn", "Unova", "Kalos" ],
-    "CorrectAnswer": "Sinnoh"
-  },
-  {
-    "Question": "¿Qué Pokémon tiene la habilidad 'Intimidate' (Intimidación) por defecto?",
-    "Options": [ "Gyarados", "Salamence", "Arcanine", "Todos los anteriores" ],
-    "CorrectAnswer": "Todos los anteriores"
-  },
-  {
-    "Question": "¿Qué Pokémon es conocido como 'El Pokémon Espejo'?",
-    "Options": [ "Ditto", "Mew", "Mewtwo", "Zorua" ],
-    "CorrectAnswer": "Ditto"
-  },
-  {
-    "Question": "¿Cuál es el Pokémon más pesado de todos?",
-    "Options": [ "Groudon", "Celesteela", "Wailord", "Eternatus" ],
-    "CorrectAnswer": "Celesteela"
-  },
-  {
-    "Question": "¿Qué Pokémon tiene la forma de Gigantamax más diferente a su forma normal?",
-    "Options": [ "Pikachu", "Eevee", "Meowth", "Charizard" ],
-    "CorrectAnswer": "Meowth"
   }
+  //{
+  //  "Question": "¿En qué región se introdujo por primera vez a Lucario?",
+  //  "Options": [ "Sinnoh", "Hoenn", "Unova", "Kalos" ],
+  //  "CorrectAnswer": "Sinnoh"
+  //},
+  //{
+  //  "Question": "¿Qué Pokémon tiene la habilidad 'Intimidate' (Intimidación) por defecto?",
+  //  "Options": [ "Gyarados", "Salamence", "Arcanine", "Todos los anteriores" ],
+  //  "CorrectAnswer": "Todos los anteriores"
+  //},
+  //{
+  //  "Question": "¿Qué Pokémon es conocido como 'El Pokémon Espejo'?",
+  //  "Options": [ "Ditto", "Mew", "Mewtwo", "Zorua" ],
+  //  "CorrectAnswer": "Ditto"
+  //},
+  //{
+  //  "Question": "¿Cuál es el Pokémon más pesado de todos?",
+  //  "Options": [ "Groudon", "Celesteela", "Wailord", "Eternatus" ],
+  //  "CorrectAnswer": "Celesteela"
+  //},
+  //{
+  //  "Question": "¿Qué Pokémon tiene la forma de Gigantamax más diferente a su forma normal?",
+  //  "Options": [ "Pikachu", "Eevee", "Meowth", "Charizard" ],
+  //  "CorrectAnswer": "Meowth"
+  //}
 ]

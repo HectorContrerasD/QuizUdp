@@ -15,9 +15,10 @@ using System.Windows.Input;
 
 namespace Client.ViewModels
 {
-    public class ClientViewModel:INotifyPropertyChanged
+    public class ClientViewModel : INotifyPropertyChanged
     {
         private ClientService _clientService;
+        private ClientView _clientView;
         private string _serverIp;
         private string _userName;
 
@@ -79,10 +80,10 @@ namespace Client.ViewModels
 
         public ClientViewModel()
         {
-            
+
             ConnectCommand = new RelayCommand(Connect);
             SendAnswerCommand = new RelayCommand<string>(SendAnswer);
-         
+
             //_clientService.QuestionReceived += OnQuestionReceived;
             //_clientService.ResultReceived += OnResultReceived;
         }
@@ -90,7 +91,7 @@ namespace Client.ViewModels
         private void Connect()
         {
 
-            
+
             if (string.IsNullOrWhiteSpace(ServerIp))
             {
                 MessageBox.Show("Por favor, ingresa una dirección IP válida.");
@@ -107,25 +108,24 @@ namespace Client.ViewModels
             // Enviar registro al servidor
             _clientService.SendRegistration();
 
-            var clientView = new ClientView()
-            {
-                DataContext = this // Corregido: usar el ViewModel actual
-            };
-            
-            clientView.Show();
+            _clientView = new ClientView();
+            _clientView.DataContext = this; // Corregido: usar el ViewModel actual
+          
 
-            
+            _clientView.Show();
+
+
             Application.Current.MainWindow.Close();
         }
 
         private void SendAnswer(string resp)
         {
-          
+
             var answer = new AnswerMessageDTO
             {
                 UserName = UserName,
-                SelectedOption = resp 
-              
+                SelectedOption = resp
+
             };
 
             _clientService.SendAnswerAsync(answer);
@@ -154,12 +154,19 @@ namespace Client.ViewModels
 
         private void OnResultReceived(object sender, ResultDTO result)
         {
-           
             CorrectAnswers = result.CorrectAnswers;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+
+                var resultView = new ResultsView();
+                resultView.DataContext = this; // Opcional: reutiliza mismo VM si tienes binding
+                resultView.Show();
+                _clientView?.Close();
+            });
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged(string propertyName=null)
+        protected void OnPropertyChanged(string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }

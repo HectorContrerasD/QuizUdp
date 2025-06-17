@@ -78,6 +78,7 @@ namespace Client.Services
                     var resultModel = JsonSerializer.Deserialize<ResultDTO>(json);
                     ResultReceived?.Invoke(this, resultModel);
                 }
+
             }
         }
     }

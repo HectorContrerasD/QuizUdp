@@ -9,9 +9,9 @@
              
              d:DesignHeight="450"  Background="Transparent" d:DesignWidth="800">
 
-    <!--<Window.DataContext>
+    <Window.DataContext>
         <vm:ClientViewModel></vm:ClientViewModel>
-    </Window.DataContext>-->
+    </Window.DataContext>
 
 
     <StackPanel Background="#E83030" Width="400">

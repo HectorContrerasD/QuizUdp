@@ -1,5 +1,6 @@
 ﻿using Server.Models;
 using Server.Models.DTOs;
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Net;
@@ -20,7 +21,7 @@ namespace Server.Services
         private Dictionary<string, int> _userScores = new Dictionary<string, int>();
 
         public event EventHandler<AnswerModel> AnswerReceived;
-        public event EventHandler<Dictionary<string,int>> QuizFinished;
+        public event EventHandler<List<RegistrationDto>> QuizFinished;
 
         public ServerService(int port)
         {
@@ -79,14 +80,8 @@ namespace Server.Services
                         UserName = registration.UserName,
                         IPAddress = registration.IPAddress,
                     };
-
-
-
+                    dto.CorrectAnswers = 0;
                     AgregarUsuario(dto);
-
-
-
-
                     continue;
                 }
 
@@ -102,40 +97,58 @@ namespace Server.Services
 
         public async Task SendResultsAsync()
         {
-            foreach (var userScore in _userScores)
-            {
-                var result = new UserScoreModel
-                {
-                    UserName = userScore.Key,
-                    CorrectAnswers = userScore.Value
-                };
+            //foreach (var userScore in _userScores)
+            //{
+            //    var result = new UserScoreModel
+            //    {
+            //        UserName = userScore.Key,
+            //        CorrectAnswers = userScore.Value
+            //    };
 
-                var json = JsonSerializer.Serialize(result);
-                var buffer = Encoding.UTF8.GetBytes(json);
-
-
-                var endpoint = new IPEndPoint(IPAddress.Broadcast, _port);
-                await _udpClient.SendAsync(buffer, buffer.Length, endpoint);
-            }
+            //    var json = JsonSerializer.Serialize(result);
+            //    var buffer = Encoding.UTF8.GetBytes(json);
 
 
-            QuizFinished?.Invoke(this, _userScores);
+            //    var endpoint = new IPEndPoint(IPAddress.Broadcast, _port);
+            //    await _udpClient.SendAsync(buffer, buffer.Length, endpoint);
+            //}
+
+            //var clients = RegisteredClients;
+            QuizFinished?.Invoke(this, RegisteredClients.ToList());
         }
 
 
         public void UpdateUserScore(string userName, bool isCorrect)
         {
-            if (_userScores.ContainsKey(userName))
+            //if (_userScores.ContainsKey(userName))
+            //{
+            //    if (isCorrect)
+            //    {
+            //        _userScores[userName]++;
+            //    }
+            //}
+            //else
+            //{
+            //    _userScores[userName] = isCorrect ? 1 : 0;
+            //}
+            var usuario = RegisteredClients.FirstOrDefault(u => u.UserName == userName);
+            if (usuario != null && isCorrect)
             {
-                if (isCorrect)
-                {
-                    _userScores[userName]++;
-                }
+
+                usuario.CorrectAnswers++;
+
             }
-            else
+        }
+        public async Task SendScoresClients(string ip, int correctAnswers)
+        {
+            var obj = new
             {
-                _userScores[userName] = isCorrect ? 1 : 0;
-            }
+                CorrectAnswers = correctAnswers
+            };
+            var json = JsonSerializer.Serialize(obj);
+            var buffer = Encoding.UTF8.GetBytes(json);
+            var endpoint = new IPEndPoint(IPAddress.Parse(ip), 11000);
+            await _udpClient.SendAsync(buffer, buffer.Length, endpoint);
         }
         private void AgregarUsuario(RegistrationDto dto)
         {
@@ -147,11 +160,7 @@ namespace Server.Services
                 {
                     RegisteredClients.Add(dto);
                 });
-
-
             }
-
-
         }
     }
 }
