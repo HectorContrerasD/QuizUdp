@@ -107,7 +107,12 @@ namespace Client.Services
                         }
                         else if (json.Contains("\"Respuesta recibida\""))
                         {
-                            RespuestaReceived?.Invoke(this,"Respuesta enviada");
+                            RespuestaReceived?.Invoke(this, "Respuesta enviada");
+                            json = string.Empty;
+                        }
+                        else if (json.Contains("\"Habilitar Botones\""))
+                        {
+                            RespuestaReceived?.Invoke(this, "Habilitar Botones");
                             json = string.Empty;
                         }
                     }

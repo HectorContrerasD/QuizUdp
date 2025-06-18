@@ -112,7 +112,7 @@ namespace Server.Services
             }
         }
 
-        private void EnviarMensaje(string v, string iPAddress)
+        public void EnviarMensaje(string v, string? iPAddress)
         {
             var obj = new
             {
@@ -120,8 +120,21 @@ namespace Server.Services
             };
             var json = JsonSerializer.Serialize(obj);
             var datos = Encoding.UTF8.GetBytes(json);
-            var endpoint = new IPEndPoint(IPAddress.Parse(iPAddress), 11000);
-            _udpClient?.Send(datos, datos.Length, endpoint);
+            var endpoint = new IPEndPoint(0,0);
+            if (v == "Habilitar Botones")
+            {
+                foreach (var item in RegisteredClients)
+                {
+
+                    endpoint = new IPEndPoint(IPAddress.Parse(item.IPAddress), 11000);
+                    _udpClient?.Send(datos, datos.Length, endpoint);
+                }
+            }
+            else
+            {
+                endpoint = new IPEndPoint(IPAddress.Parse(iPAddress), 11000);
+                _udpClient?.Send(datos, datos.Length, endpoint);
+            }
         }
 
         public async Task SendResultsAsync()

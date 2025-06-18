@@ -22,6 +22,7 @@ namespace Server.ViewModels
         private int _currentQuestionIndex;
         private int _secondsRemaining;
         private System.Timers.Timer _timer;
+        private System.Timers.Timer _timerEnabled;
         private Dictionary<string, int> _userScores = new Dictionary<string, int>();
 
         public string IpAddress { get; }
@@ -58,11 +59,22 @@ namespace Server.ViewModels
 
 
 
-            _timer = new System.Timers.Timer(1000);
-            _timer.Elapsed += OnTimerElapsed;
+           
+            _timerEnabled=new System.Timers.Timer(5000);
+            _timerEnabled.Elapsed += OnTimerEnabledElapsed;
 
 
             StartQuizCommand = new RelayCommand(StartQuiz);
+        }
+
+        private void OnTimerEnabledElapsed(object? sender, ElapsedEventArgs e)
+        {
+            _timerEnabled.Stop();
+            _timer = new System.Timers.Timer(1000);
+            _timer.Elapsed += OnTimerElapsed;
+            _serverService.EnviarMensaje("Habilitar Botones",null);
+            _timer.Start();
+           
         }
 
         private void OnQuizFinished(object? sender, List<RegistrationDto> clients)
@@ -112,7 +124,7 @@ namespace Server.ViewModels
         {
             _currentQuestionIndex = 0;
             SecondsRemaining = 10;
-            _timer.Start();
+            _timerEnabled.Start();
             _serverService.SendQuestionAsync(_questions[_currentQuestionIndex]);
         }
 
@@ -124,7 +136,8 @@ namespace Server.ViewModels
             }
             else
             {
-
+                _timer.Stop();
+                _timerEnabled.Start();
                 _currentQuestionIndex++;
                 if (_currentQuestionIndex < _questions.Count)
                 {
@@ -136,6 +149,7 @@ namespace Server.ViewModels
                 {
 
                     _timer.Stop();
+                   
                     _serverService.SendResultsAsync();
                 }
             }

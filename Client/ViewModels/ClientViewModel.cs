@@ -77,7 +77,7 @@ namespace Client.ViewModels
                 OnPropertyChanged(nameof(CorrectAnswers));
             }
         }
-        private bool _canAnswer = true;
+        private bool _canAnswer = false;
         public bool CanAnswer
         {
             get => _canAnswer;
@@ -110,6 +110,7 @@ namespace Client.ViewModels
             SecondsRemaining = 10;
             _timer = new System.Timers.Timer(1000);
             _timer.Elapsed += OnTimerElapsed;
+           
             //_clientService.QuestionReceived += OnQuestionReceived;
             //_clientService.ResultReceived += OnResultReceived;
         }
@@ -178,9 +179,20 @@ namespace Client.ViewModels
             }
         }
 
-        private void OnRespuestaReceived(object? sender, string e)
+        private async void OnRespuestaReceived(object? sender, string e)
         {
-            MessageBox.Show(e.ToString());
+            if (e == "Habilitar Botones")
+            {
+
+                CanAnswer = true;
+                await Task.Delay(500);
+                _timer.Start();
+            }
+            else
+            {
+
+                MessageBox.Show(e.ToString());
+            }
         }
 
         private void _clientService_RespuestaReceived(object? sender, string e)
@@ -216,15 +228,16 @@ namespace Client.ViewModels
         }
         private void OnQuestionReceived(object sender, QuestionDto question)
         {
-
+            _timer.Stop();
             CurrentQuestion = question.Question;
             CurrentOptions = question.Options;
 
-            SecondsRemaining = 11;
+            SecondsRemaining = 10;
             OnPropertyChanged(nameof(CurrentQuestion));
             OnPropertyChanged(nameof(CurrentOptions));
-            _timer.Start();
+
             OnPropertyChanged(nameof(SecondsRemaining));
+            CanAnswer=false;
         }
 
         private void OnResultReceived(object sender, ResultDTO result)

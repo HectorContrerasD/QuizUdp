@@ -49,7 +49,7 @@
                 <Border BorderThickness="2" Width="150" Height="60" CornerRadius="0" >
                     <UniformGrid Columns="1">
                         <Label Background="#E0982C" Foreground="White">Dirección IP</Label>
-                        <TextBlock Width="100" FontSize="14" Padding="10 5" Name="Ip" Text="{Binding IpAddress}">192.168.100.2</TextBlock>
+                        <TextBlock Width="100" FontSize="14" Padding="10 5" Name="Ip" Text="{Binding IpAddress}"></TextBlock>
                     </UniformGrid>
                 </Border>
             </UniformGrid>
