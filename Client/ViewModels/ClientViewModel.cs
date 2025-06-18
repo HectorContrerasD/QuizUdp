@@ -77,7 +77,7 @@ namespace Client.ViewModels
         public ICommand ConnectCommand { get; }
         public ICommand SendAnswerCommand { get; }
 
-
+        private bool RegistrationFailed { get; set; } = false;
         public ClientViewModel()
         {
 
@@ -91,29 +91,62 @@ namespace Client.ViewModels
         private void Connect()
         {
 
-
-            if (string.IsNullOrWhiteSpace(ServerIp))
+            RegistrationFailed = false;
+            if (string.IsNullOrWhiteSpace(ServerIp) || string.IsNullOrEmpty(UserName))
             {
-                MessageBox.Show("Por favor, ingresa una dirección IP válida.");
+                MessageBox.Show("Por favor, ingresa una dirección IP válida y un nombre de usuario");
                 return;
             }
 
 
             string localIp = GetLocalIpAddress();
 
-            _clientService = new ClientService(ServerIp, 5001, UserName, localIp);
-            _clientService.QuestionReceived += OnQuestionReceived;
-            _clientService.ResultReceived += OnResultReceived;
-
-            // Enviar registro al servidor
+            if (_clientService == null) // Solo crear una instancia si no existe
+            {
+                _clientService = new ClientService(ServerIp, 5001, UserName, localIp);
+                _clientService.QuestionReceived += OnQuestionReceived;
+                _clientService.ResultReceived += OnResultReceived;
+                _clientService.RespuestaReceived += OnRespuestaReceived;
+            }
+            else
+            {
+                
+                _clientService.UpdateCredentials(ServerIp, UserName, localIp); // ¡Añade este método a ClientService!
+            }
+           
             _clientService.SendRegistration();
+           
 
-            _clientView = new ClientView();
-            _clientView.DataContext = this; // Corregido: usar el ViewModel actual
-            _clientView.Show();
+            _clientService.MensajeRegistradoReceived += () =>
+            {
+
+                MessageBox.Show("El usuario ya se encuentra registrado. Intenta con otro.");
+                RegistrationFailed = true;
+                UserName = "";
+                ServerIp = "";
+
+            };
+            if (!RegistrationFailed)
+            {
+
+                _clientView = new ClientView();
+                _clientView.DataContext = this; // Corregido: usar el ViewModel actual
+                _clientView.Show();
 
 
-            Application.Current.MainWindow.Close();
+                Application.Current.MainWindow.Close();
+                return;
+            }
+        }
+
+        private void OnRespuestaReceived(object? sender, string e)
+        {
+            MessageBox.Show(e.ToString());
+        }
+
+        private void _clientService_RespuestaReceived(object? sender, string e)
+        {
+            throw new NotImplementedException();
         }
 
         private void SendAnswer(string resp)
@@ -122,7 +155,8 @@ namespace Client.ViewModels
             var answer = new AnswerMessageDTO
             {
                 UserName = UserName,
-                SelectedOption = resp
+                SelectedOption = resp,
+                IpAdress=GetLocalIpAddress(),
 
             };
 

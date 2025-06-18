@@ -18,6 +18,7 @@ namespace Server.Services
         private readonly object _lockObj = new object();
         private int _port;
         public ObservableCollection<RegistrationDto> RegisteredClients { get; set; } = new ObservableCollection<RegistrationDto>();
+        private ObservableCollection<string> _usuariosQueRespondieron = new();
         private Dictionary<string, int> _userScores = new Dictionary<string, int>();
 
         public event EventHandler<AnswerModel> AnswerReceived;
@@ -30,6 +31,7 @@ namespace Server.Services
             _udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             _udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, _port));
             BindingOperations.EnableCollectionSynchronization(RegisteredClients, _lockObj);
+
             var hilo = new Thread(new ThreadStart(ReceiveAnswersAsync))
             {
                 IsBackground = true
@@ -44,6 +46,7 @@ namespace Server.Services
         {
 
             List<RegistrationDto> clientsCopy;
+            _usuariosQueRespondieron.Clear();
 
             var json = JsonSerializer.Serialize(question);
             var buffer = Encoding.UTF8.GetBytes(json);
@@ -68,13 +71,8 @@ namespace Server.Services
             IPEndPoint? rem = null;
             while (true)
             {
-
-
                 byte[] result = _udpClient.Receive(ref rem);
                 var json = Encoding.UTF8.GetString(result);
-
-
-
                 if (json.Contains("IPAddress"))
                 {
                     var registration = JsonSerializer.Deserialize<RegistrationDto>(json);
@@ -90,23 +88,41 @@ namespace Server.Services
                         AgregarUsuario(dto);
                         continue;
                     }
-                    // Mandar mensaje
+                    else
+                    {
 
-
+                        EnviarMensaje("Usuario ya registrado", registration.IPAddress);
+                    }
                     continue;
                 }
 
-                // Manejar respuestas (código existente)
                 if (json.Contains("SelectedOption"))
                 {
+
                     var answer = JsonSerializer.Deserialize<AnswerModel>(json);
-                    AnswerReceived?.Invoke(this, answer);
+                    if (!_usuariosQueRespondieron.Contains(answer.UserName))
+                    {
+                        _usuariosQueRespondieron.Add(answer.UserName);
+                        AnswerReceived?.Invoke(this, answer);
+                        EnviarMensaje("Respuesta recibida", answer.IpAdress);
+                    }
                 }
 
 
             }
         }
 
+        private void EnviarMensaje(string v, string iPAddress)
+        {
+            var obj = new
+            {
+                Mensaje = v
+            };
+            var json = JsonSerializer.Serialize(obj);
+            var datos = Encoding.UTF8.GetBytes(json);
+            var endpoint = new IPEndPoint(IPAddress.Parse(iPAddress), 11000);
+            _udpClient?.Send(datos, datos.Length, endpoint);
+        }
 
         public async Task SendResultsAsync()
         {

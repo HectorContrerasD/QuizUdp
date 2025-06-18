@@ -20,6 +20,10 @@ namespace Client.Services
 
         public event EventHandler<QuestionDto> QuestionReceived;
         public event EventHandler<ResultDTO> ResultReceived;
+        public event Action MensajeRegistradoReceived;
+        public event EventHandler<string> RespuestaReceived;
+
+
 
         public ClientService(string serverIp, int port, string UserName, string ip)
         {
@@ -65,6 +69,12 @@ namespace Client.Services
             var endpoint = new IPEndPoint(IPAddress.Parse(_serverIp), 5000);
             _udpClient.Send(buffer, buffer.Length, endpoint);
         }
+        public void UpdateCredentials(string serverIp, string userName, string clientIp)
+        {
+            _serverIp = serverIp;
+            _userName = userName;
+            _clientIp = clientIp;
+        }
         private void ReceiveMessagesAsync()
         {
             while (true)
@@ -86,6 +96,20 @@ namespace Client.Services
                     {
                         var resultModel = JsonSerializer.Deserialize<ResultDTO>(json);
                         ResultReceived?.Invoke(this, resultModel);
+                    }
+                    else if (json.Contains("Mensaje"))
+                    {
+                        if (json.Contains("\"Usuario ya registrado\""))
+                        {
+
+                            MensajeRegistradoReceived?.Invoke();
+                            json = string.Empty;
+                        }
+                        else if (json.Contains("\"Respuesta recibida\""))
+                        {
+                            RespuestaReceived?.Invoke(this,"Respuesta enviada");
+                            json = string.Empty;
+                        }
                     }
                 }
                 catch (Exception ex)

@@ -10,5 +10,6 @@ namespace Server.Models.DTOs
     {
         public string UserName { get; set; } 
         public string? SelectedOption { get; set; } 
+        public string IpAdress {  get; set; }
     }
 }

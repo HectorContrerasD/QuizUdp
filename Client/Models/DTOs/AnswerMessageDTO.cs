@@ -9,6 +9,8 @@ namespace Client.Models.DTOs
     public class AnswerMessageDTO
     {
         public string UserName { get; set; }
-        public string SelectedOption { get; set; } 
+        public string SelectedOption { get; set; }
+        public string IpAdress { get; set; }
+
     }
 }
