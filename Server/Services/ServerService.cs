@@ -26,7 +26,9 @@ namespace Server.Services
         public ServerService(int port)
         {
             _port = port;
-            _udpClient = new UdpClient(new IPEndPoint(IPAddress.Any, _port));
+            _udpClient = new UdpClient();
+            _udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            _udpClient.Client.Bind(new IPEndPoint(IPAddress.Any, _port));
             BindingOperations.EnableCollectionSynchronization(RegisteredClients, _lockObj);
             var hilo = new Thread(new ThreadStart(ReceiveAnswersAsync))
             {
@@ -66,6 +68,8 @@ namespace Server.Services
             IPEndPoint? rem = null;
             while (true)
             {
+
+
                 byte[] result = _udpClient.Receive(ref rem);
                 var json = Encoding.UTF8.GetString(result);
 
@@ -74,14 +78,21 @@ namespace Server.Services
                 if (json.Contains("IPAddress"))
                 {
                     var registration = JsonSerializer.Deserialize<RegistrationDto>(json);
-
-                    var dto = new RegistrationDto
+                    bool existe = RegisteredClients.Any(x => x.UserName == registration.UserName);
+                    if (!existe)
                     {
-                        UserName = registration.UserName,
-                        IPAddress = registration.IPAddress,
-                    };
-                    dto.CorrectAnswers = 0;
-                    AgregarUsuario(dto);
+                        var dto = new RegistrationDto
+                        {
+                            UserName = registration.UserName,
+                            IPAddress = registration.IPAddress,
+                            CorrectAnswers = 0
+                        };
+                        AgregarUsuario(dto);
+                        continue;
+                    }
+                    // Mandar mensaje
+
+
                     continue;
                 }
 
@@ -91,6 +102,8 @@ namespace Server.Services
                     var answer = JsonSerializer.Deserialize<AnswerModel>(json);
                     AnswerReceived?.Invoke(this, answer);
                 }
+
+
             }
         }
 
@@ -114,6 +127,9 @@ namespace Server.Services
             //}
 
             //var clients = RegisteredClients;
+
+
+
             QuizFinished?.Invoke(this, RegisteredClients.ToList());
         }
 

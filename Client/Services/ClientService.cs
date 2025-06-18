@@ -18,10 +18,10 @@ namespace Client.Services
         private string _userName;
         private string _clientIp;
 
-        public event EventHandler<QuestionDto> QuestionReceived; 
-        public event EventHandler<ResultDTO> ResultReceived; 
+        public event EventHandler<QuestionDto> QuestionReceived;
+        public event EventHandler<ResultDTO> ResultReceived;
 
-        public ClientService(string serverIp, int port,string UserName,string ip)
+        public ClientService(string serverIp, int port, string UserName, string ip)
         {
             _serverIp = serverIp;
             _port = port;
@@ -36,7 +36,7 @@ namespace Client.Services
             //Task.Run(ReceiveMessagesAsync); 
         }
 
-      
+
         public async Task SendAnswerAsync(AnswerMessageDTO answer)
         {
             var json = JsonSerializer.Serialize(answer);
@@ -45,7 +45,13 @@ namespace Client.Services
             var endpoint = new IPEndPoint(IPAddress.Parse(_serverIp), 5000);
             await _udpClient.SendAsync(buffer, buffer.Length, endpoint);
         }
-
+        private bool _isRunning = true;
+        public void Cerrar()
+        {
+            _isRunning = false;
+            _udpClient?.Close();
+            _udpClient?.Dispose();
+        }
         public void SendRegistration()
         {
             var registration = new RegistrationDto
@@ -63,20 +69,30 @@ namespace Client.Services
         {
             while (true)
             {
-                IPEndPoint rem = new IPEndPoint(IPAddress.Any, 0);
-                var result = _udpClient.Receive(ref rem);
-                var json = Encoding.UTF8.GetString(result);
+                try
+                {
 
-              
-                if (json.Contains("Question"))
-                {
-                    var question = JsonSerializer.Deserialize<QuestionDto>(json);
-                    QuestionReceived?.Invoke(this, question);
+                    IPEndPoint rem = new IPEndPoint(IPAddress.Any, 0);
+                    var result = _udpClient.Receive(ref rem);
+                    var json = Encoding.UTF8.GetString(result);
+
+
+                    if (json.Contains("Question"))
+                    {
+                        var question = JsonSerializer.Deserialize<QuestionDto>(json);
+                        QuestionReceived?.Invoke(this, question);
+                    }
+                    else if (json.Contains("CorrectAnswers"))
+                    {
+                        var resultModel = JsonSerializer.Deserialize<ResultDTO>(json);
+                        ResultReceived?.Invoke(this, resultModel);
+                    }
                 }
-                else if (json.Contains("CorrectAnswers"))
+                catch (Exception ex)
                 {
-                    var resultModel = JsonSerializer.Deserialize<ResultDTO>(json);
-                    ResultReceived?.Invoke(this, resultModel);
+
+                    if (!_isRunning)
+                        break;
                 }
 
             }

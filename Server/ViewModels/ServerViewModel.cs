@@ -21,7 +21,7 @@ namespace Server.ViewModels
         private List<QuestionModel> _questions = new();
         private int _currentQuestionIndex;
         private int _secondsRemaining;
-        private System.Timers.Timer _timer; 
+        private System.Timers.Timer _timer;
         private Dictionary<string, int> _userScores = new Dictionary<string, int>();
 
         public string IpAddress { get; }
@@ -55,10 +55,10 @@ namespace Server.ViewModels
             _serverService.AnswerReceived += OnAnswerReceived;
             _serverService.QuizFinished += OnQuizFinished;
             _questions = LoadQuestionsFromJson(Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Preguntas.json"));
-            
 
 
-            _timer = new System.Timers.Timer(1000); 
+
+            _timer = new System.Timers.Timer(1000);
             _timer.Elapsed += OnTimerElapsed;
 
 
@@ -67,11 +67,23 @@ namespace Server.ViewModels
 
         private void OnQuizFinished(object? sender, List<RegistrationDto> clients)
         {
+
+
             foreach (var item in clients)
             {
 
                 _serverService.SendScoresClients(item.IPAddress, item.CorrectAnswers);
             }
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+               
+                var resultView = new ResultsView();
+                resultView.DataContext = this;
+                resultView.Show();
+                
+                Application.Current.MainWindow.Close();
+            });
+
         }
 
         private List<QuestionModel> LoadQuestionsFromJson(string filePath)
@@ -99,7 +111,7 @@ namespace Server.ViewModels
         private void StartQuiz()
         {
             _currentQuestionIndex = 0;
-            SecondsRemaining = 10; 
+            SecondsRemaining = 10;
             _timer.Start();
             _serverService.SendQuestionAsync(_questions[_currentQuestionIndex]);
         }

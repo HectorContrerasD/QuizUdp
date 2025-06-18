@@ -110,8 +110,6 @@ namespace Client.ViewModels
 
             _clientView = new ClientView();
             _clientView.DataContext = this; // Corregido: usar el ViewModel actual
-          
-
             _clientView.Show();
 
 
