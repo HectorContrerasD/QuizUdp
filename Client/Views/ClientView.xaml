@@ -47,16 +47,16 @@
             </Border>
             <UniformGrid Name="Options" Margin="20 10" Rows="2" VerticalAlignment="Top">
                 <Border Background="#DC3C34">
-                    <Button Command="{Binding SendAnswerCommand}" CommandParameter="{Binding CurrentOptions[0]}" Content="{Binding CurrentOptions[0]}"></Button>
+                    <Button Command="{Binding SendAnswerCommand}" IsEnabled="{Binding CanAnswer}" CommandParameter="{Binding CurrentOptions[0]}" Content="{Binding CurrentOptions[0]}" Background="Transparent"></Button>
                 </Border>
                 <Border Background="#E0982C" Height="40">
-                    <Button Command="{Binding SendAnswerCommand}" FontSize="20" Content="{Binding CurrentOptions[1]}" CommandParameter="{Binding CurrentOptions[1]}"> </Button>
+                    <Button Command="{Binding SendAnswerCommand}" IsEnabled="{Binding CanAnswer}" FontSize="20" Content="{Binding CurrentOptions[1]}" CommandParameter="{Binding CurrentOptions[1]}" Background="Transparent"> </Button>
                 </Border>
                 <Border Background="#E0982C">
-                    <Button Command="{Binding SendAnswerCommand}" CommandParameter="{Binding CurrentOptions[2]}" Content="{Binding CurrentOptions[2]}"></Button>
+                    <Button Command="{Binding SendAnswerCommand}" IsEnabled="{Binding CanAnswer}" CommandParameter="{Binding CurrentOptions[2]}" Content="{Binding CurrentOptions[2]}" Background="Transparent" ></Button>
                 </Border>
                 <Border Background="#DC3C34">
-                    <Button Command="{Binding SendAnswerCommand}" CommandParameter="{Binding CurrentOptions[3]}" Content="{Binding CurrentOptions[3]}"></Button>
+                    <Button Command="{Binding SendAnswerCommand}" IsEnabled="{Binding CanAnswer}" CommandParameter="{Binding CurrentOptions[3]}" Content="{Binding CurrentOptions[3]}" Background="Transparent"></Button>
                 </Border>
             </UniformGrid>
         </UniformGrid>

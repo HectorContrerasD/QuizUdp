@@ -51,6 +51,7 @@ namespace Client.ViewModels
             {
                 _currentQuestion = value;
                 OnPropertyChanged(nameof(CurrentQuestion));
+                CanAnswer = true;
             }
         }
 
@@ -73,7 +74,16 @@ namespace Client.ViewModels
                 OnPropertyChanged(nameof(CorrectAnswers));
             }
         }
-
+        private bool _canAnswer = true;
+        public bool CanAnswer
+        {
+            get => _canAnswer;
+            set
+            {
+                _canAnswer = value;
+                OnPropertyChanged(nameof(CanAnswer));
+            }
+        }
         public ICommand ConnectCommand { get; }
         public ICommand SendAnswerCommand { get; }
 
@@ -161,6 +171,7 @@ namespace Client.ViewModels
             };
 
             _clientService.SendAnswerAsync(answer);
+            CanAnswer = false;
         }
         private string GetLocalIpAddress()
         {
@@ -182,6 +193,7 @@ namespace Client.ViewModels
 
             OnPropertyChanged(nameof(CurrentQuestion));
             OnPropertyChanged(nameof(CurrentOptions));
+           
         }
 
         private void OnResultReceived(object sender, ResultDTO result)
