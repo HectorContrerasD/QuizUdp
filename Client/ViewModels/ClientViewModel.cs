@@ -111,9 +111,7 @@ namespace Client.ViewModels
             SecondsRemaining = 10;
             _timer = new System.Timers.Timer(1000);
             _timer.Elapsed += OnTimerElapsed;
-           
-            //_clientService.QuestionReceived += OnQuestionReceived;
-            //_clientService.ResultReceived += OnResultReceived;
+         
         }
 
         private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
@@ -152,7 +150,7 @@ namespace Client.ViewModels
             else
             {
 
-                _clientService.UpdateCredentials(ServerIp, UserName, localIp); // ¡Añade este método a ClientService!
+                _clientService.UpdateCredentials(ServerIp, UserName, localIp);
             }
 
             _clientService.SendRegistration();
@@ -225,7 +223,7 @@ namespace Client.ViewModels
                     return ip.ToString();
                 }
             }
-            return "127.0.0.1"; // Fallback a localhost
+            return "127.0.0.1"; 
         }
         private void OnQuestionReceived(object sender, QuestionDto question)
         {
@@ -248,7 +246,7 @@ namespace Client.ViewModels
             {
 
                 var resultView = new ResultsView();
-                resultView.DataContext = this; // Opcional: reutiliza mismo VM si tienes binding
+                resultView.DataContext = this; 
                 resultView.Show();
                 _clientView?.Close();
             });

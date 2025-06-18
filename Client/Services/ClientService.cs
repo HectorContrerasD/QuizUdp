@@ -37,17 +37,46 @@ namespace Client.Services
                 IsBackground = true
             };
             hilo.Start();
-            //Task.Run(ReceiveMessagesAsync); 
+           
         }
 
 
         public async Task SendAnswerAsync(AnswerMessageDTO answer)
         {
-            var json = JsonSerializer.Serialize(answer);
-            var buffer = Encoding.UTF8.GetBytes(json);
+            try
+            {
+                var json = JsonSerializer.Serialize(answer);
+                var buffer = Encoding.UTF8.GetBytes(json);
 
-            var endpoint = new IPEndPoint(IPAddress.Parse(_serverIp), 5000);
-            await _udpClient.SendAsync(buffer, buffer.Length, endpoint);
+                var endpoint = new IPEndPoint(IPAddress.Parse(_serverIp), 5000);
+                await _udpClient.SendAsync(buffer, buffer.Length, endpoint);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error enviando respuesta: {ex.Message}");
+            }
+        }
+        private async Task SendHeartbeatResponse()
+        {
+            try
+            {
+                var heartbeatResponse = new
+                {
+                    Type = "HEARTBEAT_RESPONSE",
+                    ClientIP = _clientIp,
+                    Timestamp = DateTime.Now
+                };
+
+                var json = JsonSerializer.Serialize(heartbeatResponse);
+                var buffer = Encoding.UTF8.GetBytes(json);
+
+                var endpoint = new IPEndPoint(IPAddress.Parse(_serverIp), 5000);
+                await _udpClient.SendAsync(buffer, buffer.Length, endpoint);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error enviando heartbeat response: {ex.Message}");
+            }
         }
         private bool _isRunning = true;
         public void Cerrar()
@@ -58,16 +87,23 @@ namespace Client.Services
         }
         public void SendRegistration()
         {
-            var registration = new RegistrationDto
+            try
             {
-                UserName = _userName,
-                IPAddress = _clientIp
-            };
+                var registration = new RegistrationDto
+                {
+                    UserName = _userName,
+                    IPAddress = _clientIp
+                };
 
-            var json = JsonSerializer.Serialize(registration);
-            var buffer = Encoding.UTF8.GetBytes(json);
-            var endpoint = new IPEndPoint(IPAddress.Parse(_serverIp), 5000);
-            _udpClient.Send(buffer, buffer.Length, endpoint);
+                var json = JsonSerializer.Serialize(registration);
+                var buffer = Encoding.UTF8.GetBytes(json);
+                var endpoint = new IPEndPoint(IPAddress.Parse(_serverIp), 5000);
+                _udpClient.Send(buffer, buffer.Length, endpoint);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error enviando registro: {ex.Message}");
+            }
         }
         public void UpdateCredentials(string serverIp, string userName, string clientIp)
         {
@@ -77,15 +113,21 @@ namespace Client.Services
         }
         private void ReceiveMessagesAsync()
         {
-            while (true)
+            while (_isRunning)
             {
                 try
                 {
-
                     IPEndPoint rem = new IPEndPoint(IPAddress.Any, 0);
                     var result = _udpClient.Receive(ref rem);
                     var json = Encoding.UTF8.GetString(result);
 
+                    
+                    if (json.Contains("HEARTBEAT") && json.Contains("Type"))
+                    {
+                        
+                        Task.Run(async () => await SendHeartbeatResponse());
+                        continue;
+                    }
 
                     if (json.Contains("Question"))
                     {
@@ -101,27 +143,42 @@ namespace Client.Services
                     {
                         if (json.Contains("\"Usuario ya registrado\""))
                         {
-
                             MensajeRegistradoReceived?.Invoke();
-                            json = string.Empty;
+                            json=string.Empty;
                         }
                         else if (json.Contains("\"Respuesta recibida\""))
                         {
                             RespuestaReceived?.Invoke(this, "Respuesta enviada");
                             json = string.Empty;
+
                         }
                         else if (json.Contains("\"Habilitar Botones\""))
                         {
                             RespuestaReceived?.Invoke(this, "Habilitar Botones");
                             json = string.Empty;
+
                         }
                     }
                 }
+                catch (ObjectDisposedException)
+                {
+                   
+                    break;
+                }
+                catch (SocketException ex)
+                {
+                    if (_isRunning)
+                    {
+                        Console.WriteLine($"Error de socket en cliente: {ex.Message}");
+                    }
+                    break;
+                }
                 catch (Exception ex)
                 {
-
-                    if (!_isRunning)
-                        break;
+                    if (_isRunning)
+                    {
+                        Console.WriteLine($"Error en ReceiveMessagesAsync: {ex.Message}");
+                    }
                 }
 
             }

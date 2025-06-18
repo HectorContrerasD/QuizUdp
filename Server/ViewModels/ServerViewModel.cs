@@ -117,13 +117,7 @@ namespace Server.ViewModels
                     Application.Current.MainWindow = _serverView;
                 }
 
-                // Continuar lógica del quiz:
-                //if (_currentQuestionIndex < _questions.Count)
-                //{
-                //    SecondsRemaining = 10;
-                //    _serverService.SendQuestionAsync(_questions[_currentQuestionIndex]);
-                //    _timerEnabled.Start();
-                //}
+             
             });
 
         }
@@ -146,12 +140,7 @@ namespace Server.ViewModels
                     _resultsView = new ResultsView { DataContext = this };
                     _resultsView.Closed += (s, e) => _resultsView = null;
                     _resultsView.Show();
-                    //if (_serverView != null)
-                    //{
-
-                    //    _serverView.Close();
-                    //    _serverView = null;
-                    //}
+                   
 
                     Application.Current.MainWindow = _resultsView;
 
@@ -184,12 +173,13 @@ namespace Server.ViewModels
             Application.Current.Dispatcher.Invoke(() =>
             {
 
-                var resultView = new ResultsView();
-                resultView.DataContext = this;
-                resultView.Show();
-
-                Application.Current.MainWindow.Close();
+                _resultsView = new ResultsView { DataContext = this };
+                _resultsView.Closed += (s, e) => _resultsView = null;
+                _resultsView.Show();
             });
+            _timer.Stop();
+            _timerResults.Stop();
+            _timerEnabled.Stop();
 
         }
 
@@ -257,12 +247,7 @@ namespace Server.ViewModels
             _serverService.UpdateUserScore(answer.UserName, isCorrect);
         }
 
-        //private void OnQuizFinished(object sender, EventArgs e)
-        //{
-        //    var resulsView = new ResultsView();
-        //    resulsView.Show();
-        //    Application.Current.MainWindow.Close();
-        //}
+       
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName = null)

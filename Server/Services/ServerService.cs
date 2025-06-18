@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Timers;
 using System.Windows;
 using System.Windows.Data;
 
@@ -27,7 +28,11 @@ namespace Server.Services
         public event EventHandler<Dictionary<string, int>> SendVotos;
         public event EventHandler<Dictionary<string, int>> SendPuntaje;
 
-
+        private System.Timers.Timer _heartbeatTimer;
+        private Dictionary<string, DateTime> _lastHeartbeat = new Dictionary<string, DateTime>();
+        private readonly int HEARTBEAT_INTERVAL = 1000;
+        private readonly int CLIENT_TIMEOUT = 1000;
+        public event EventHandler<string> ClientDisconnected;
         public ServerService(int port)
         {
             _port = port;
@@ -41,11 +46,102 @@ namespace Server.Services
                 IsBackground = true
             };
             hilo.Start();
-            //hilo.Join();
-            //Task.Run(ReceiveAnswersAsync); 
+           ; 
         }
 
+        private void InitializeHeartbeat()
+        {
+            _heartbeatTimer = new System.Timers.Timer(HEARTBEAT_INTERVAL);
+            _heartbeatTimer.Elapsed += OnHeartbeatTimer;
+            _heartbeatTimer.Start();
+        }
+        private async void OnHeartbeatTimer(object sender, ElapsedEventArgs e)
+        {
+            await SendHeartbeatToClients();
+            CheckDisconnectedClients();
+        }
+        private async Task SendHeartbeatToClients()
+        {
+            var heartbeatMessage = new
+            {
+                Type = "HEARTBEAT",
+                Timestamp = DateTime.Now
+            };
 
+            var json = JsonSerializer.Serialize(heartbeatMessage);
+            var buffer = Encoding.UTF8.GetBytes(json);
+
+            List<RegistrationDto> clientsCopy;
+            lock (_lockObj)
+            {
+                clientsCopy = RegisteredClients.ToList();
+            }
+
+            foreach (var client in clientsCopy)
+            {
+                try
+                {
+                    var endpoint = new IPEndPoint(IPAddress.Parse(client.IPAddress), 11000);
+                    await _udpClient.SendAsync(buffer, buffer.Length, endpoint);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error enviando heartbeat a {client.IPAddress}: {ex.Message}");
+                    
+                    RemoveClient(client.IPAddress);
+                }
+            }
+        }
+        private void CheckDisconnectedClients()
+        {
+            var now = DateTime.Now;
+            var clientsToRemove = new List<string>();
+
+            lock (_lockObj)
+            {
+                foreach (var client in RegisteredClients.ToList())
+                {
+                    if (_lastHeartbeat.ContainsKey(client.IPAddress))
+                    {
+                        var timeSinceLastHeartbeat = now - _lastHeartbeat[client.IPAddress];
+                        if (timeSinceLastHeartbeat.TotalMilliseconds > CLIENT_TIMEOUT)
+                        {
+                            clientsToRemove.Add(client.IPAddress);
+                        }
+                    }
+                    else
+                    {
+                        
+                        _lastHeartbeat[client.IPAddress] = now;
+                    }
+                }
+            }
+
+            foreach (var clientIp in clientsToRemove)
+            {
+                RemoveClient(clientIp);
+            }
+        }
+        private void RemoveClient(string clientIp)
+        {
+            lock (_lockObj)
+            {
+                var clientToRemove = RegisteredClients.FirstOrDefault(c => c.IPAddress == clientIp);
+                if (clientToRemove != null)
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        RegisteredClients.Remove(clientToRemove);
+                    });
+
+                    _lastHeartbeat.Remove(clientIp);
+                    Console.WriteLine($"Cliente desconectado: {clientToRemove.UserName} ({clientIp})");
+
+                   
+                    ClientDisconnected?.Invoke(this, clientToRemove.UserName);
+                }
+            }
+        }
         public async Task SendQuestionAsync(QuestionModel question)
         {
 
@@ -70,11 +166,7 @@ namespace Server.Services
             var json = JsonSerializer.Serialize(question);
             var buffer = Encoding.UTF8.GetBytes(json);
             var endpoint = new IPEndPoint(0, 0);
-            //lock (_lockObj)
-            //{
-            //    clientsCopy = RegisteredClients.ToList();
-            //}
-
+          
             foreach (var item in RegisteredClients)
             {
 
@@ -92,6 +184,12 @@ namespace Server.Services
             {
                 byte[] result = _udpClient.Receive(ref rem);
                 var json = Encoding.UTF8.GetString(result);
+                if (json.Contains("HEARTBEAT_RESPONSE"))
+                {
+                    var heartbeatResponse = JsonSerializer.Deserialize<HearthBeatReponse>(json);
+                    _lastHeartbeat[heartbeatResponse.ClientIP] = DateTime.Now;
+                    continue;
+                }
                 if (json.Contains("IPAddress"))
                 {
                     var registration = JsonSerializer.Deserialize<RegistrationDto>(json);
@@ -105,9 +203,10 @@ namespace Server.Services
                             CorrectAnswers = 0
                         };
                         AgregarUsuario(dto);
+                        _lastHeartbeat[registration.IPAddress] = DateTime.Now;
                         if (!_userScores.ContainsKey(registration.UserName))
                         {
-                            _userScores[registration.UserName] = registration.CorrectAnswers; // o 0 si prefieres ignorar el valor del DTO
+                            _userScores[registration.UserName] = registration.CorrectAnswers; 
                         }
                         continue;
                     }
@@ -167,23 +266,7 @@ namespace Server.Services
 
         public async Task SendResultsAsync()
         {
-            //foreach (var userScore in _userScores)
-            //{
-            //    var result = new UserScoreModel
-            //    {
-            //        UserName = userScore.Key,
-            //        CorrectAnswers = userScore.Value
-            //    };
-
-            //    var json = JsonSerializer.Serialize(result);
-            //    var buffer = Encoding.UTF8.GetBytes(json);
-
-
-            //    var endpoint = new IPEndPoint(IPAddress.Broadcast, _port);
-            //    await _udpClient.SendAsync(buffer, buffer.Length, endpoint);
-            //}
-
-            //var clients = RegisteredClients;
+           
 
 
 
@@ -193,17 +276,7 @@ namespace Server.Services
 
         public void UpdateUserScore(string userName, bool isCorrect)
         {
-            //if (_userScores.ContainsKey(userName))
-            //{
-            //    if (isCorrect)
-            //    {
-            //        _userScores[userName]++;
-            //    }
-            //}
-            //else
-            //{
-            //    _userScores[userName] = isCorrect ? 1 : 0;
-            //}
+           
             var usuario = RegisteredClients.FirstOrDefault(u => u.UserName == userName);
             if (usuario != null && isCorrect)
             {
