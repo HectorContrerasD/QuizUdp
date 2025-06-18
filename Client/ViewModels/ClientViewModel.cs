@@ -24,6 +24,7 @@ namespace Client.ViewModels
         private string _userName;
         private int _secondsRemaining;
 
+
         private System.Timers.Timer _timer;
         private string _currentQuestion;
         private string[] _currentOptions;
@@ -170,7 +171,7 @@ namespace Client.ViewModels
             {
 
                 _clientView = new ClientView();
-                _clientView.DataContext = this; // Corregido: usar el ViewModel actual
+                _clientView.DataContext = this;
                 _clientView.Show();
 
 

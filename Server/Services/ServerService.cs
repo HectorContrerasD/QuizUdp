@@ -16,6 +16,7 @@ namespace Server.Services
     {
         private UdpClient _udpClient;
         private readonly object _lockObj = new object();
+        private Dictionary<string, int> _opcionesContador = new();
         private int _port;
         public ObservableCollection<RegistrationDto> RegisteredClients { get; set; } = new ObservableCollection<RegistrationDto>();
         private ObservableCollection<string> _usuariosQueRespondieron = new();
@@ -23,6 +24,9 @@ namespace Server.Services
 
         public event EventHandler<AnswerModel> AnswerReceived;
         public event EventHandler<List<RegistrationDto>> QuizFinished;
+        public event EventHandler<Dictionary<string, int>> SendVotos;
+        public event EventHandler<Dictionary<string, int>> SendPuntaje;
+
 
         public ServerService(int port)
         {
@@ -47,7 +51,22 @@ namespace Server.Services
 
             List<RegistrationDto> clientsCopy;
             _usuariosQueRespondieron.Clear();
-
+            
+            if (_opcionesContador.Count > 0)
+            {
+                SendVotos?.Invoke(this, _opcionesContador);
+            }
+            if (RegisteredClients.Count > 0)
+            {
+                SendPuntaje?.Invoke(this, _userScores);
+            }
+            
+            _opcionesContador.Clear();
+            foreach (var opcion in question.Options)
+            {
+                if (!_opcionesContador.ContainsKey(opcion))
+                    _opcionesContador[opcion] = 0;
+            }
             var json = JsonSerializer.Serialize(question);
             var buffer = Encoding.UTF8.GetBytes(json);
             var endpoint = new IPEndPoint(0, 0);
@@ -86,6 +105,10 @@ namespace Server.Services
                             CorrectAnswers = 0
                         };
                         AgregarUsuario(dto);
+                        if (!_userScores.ContainsKey(registration.UserName))
+                        {
+                            _userScores[registration.UserName] = registration.CorrectAnswers; // o 0 si prefieres ignorar el valor del DTO
+                        }
                         continue;
                     }
                     else
@@ -103,6 +126,11 @@ namespace Server.Services
                     if (!_usuariosQueRespondieron.Contains(answer.UserName))
                     {
                         _usuariosQueRespondieron.Add(answer.UserName);
+                        if (_opcionesContador.ContainsKey(answer.SelectedOption))
+                        {
+                            _opcionesContador[answer.SelectedOption]++;
+                        }
+
                         AnswerReceived?.Invoke(this, answer);
                         EnviarMensaje("Respuesta recibida", answer.IpAdress);
                     }
@@ -120,7 +148,7 @@ namespace Server.Services
             };
             var json = JsonSerializer.Serialize(obj);
             var datos = Encoding.UTF8.GetBytes(json);
-            var endpoint = new IPEndPoint(0,0);
+            var endpoint = new IPEndPoint(0, 0);
             if (v == "Habilitar Botones")
             {
                 foreach (var item in RegisteredClients)
@@ -179,7 +207,7 @@ namespace Server.Services
             var usuario = RegisteredClients.FirstOrDefault(u => u.UserName == userName);
             if (usuario != null && isCorrect)
             {
-
+                _userScores[userName]++;
                 usuario.CorrectAnswers++;
 
             }
