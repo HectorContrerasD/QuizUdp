@@ -34,8 +34,8 @@
             <Border Height="70" Width="330" Background="#F8F8D8" BorderThickness="6" BorderBrush="#506860">
                 <UniformGrid Columns="3" Rows="1" Margin="10">
                     <Label FontSize="20">Nivel:</Label>
-                    <!--<TextBlock FontSize="20" Text="{Binding}">10</TextBlock>-->
-                    <ProgressBar Height="15"  Background="#64EC99" Margin="-10,12,0,11"/>
+                    <Label Name="timer" FontSize="20" Content="{Binding SecondsRemaining}"></Label>
+                    <ProgressBar Name="TimerBar" Height="15" Value="{Binding SecondsRemaining}" Background="#64EC99" Margin="-61,12,0,11"/>
                 </UniformGrid>
             </Border>
             <Image Height="140" Source="/Assets/chari.png"></Image>

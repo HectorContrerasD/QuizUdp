@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 
@@ -21,7 +22,9 @@ namespace Client.ViewModels
         private ClientView _clientView;
         private string _serverIp;
         private string _userName;
+        private int _secondsRemaining;
 
+        private System.Timers.Timer _timer;
         private string _currentQuestion;
         private string[] _currentOptions;
         private int _correctAnswers;
@@ -82,6 +85,17 @@ namespace Client.ViewModels
             {
                 _canAnswer = value;
                 OnPropertyChanged(nameof(CanAnswer));
+
+            }
+        }
+
+        public int SecondsRemaining
+        {
+            get => _secondsRemaining;
+            set
+            {
+                _secondsRemaining = value;
+                OnPropertyChanged(nameof(SecondsRemaining));
             }
         }
         public ICommand ConnectCommand { get; }
@@ -93,9 +107,24 @@ namespace Client.ViewModels
 
             ConnectCommand = new RelayCommand(Connect);
             SendAnswerCommand = new RelayCommand<string>(SendAnswer);
-
+            SecondsRemaining = 10;
+            _timer = new System.Timers.Timer(1000);
+            _timer.Elapsed += OnTimerElapsed;
             //_clientService.QuestionReceived += OnQuestionReceived;
             //_clientService.ResultReceived += OnResultReceived;
+        }
+
+        private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
+        {
+            if (SecondsRemaining > 0)
+            {
+                SecondsRemaining--;
+            }
+            else
+            {
+                _timer.Stop();
+            }
+            OnPropertyChanged(nameof(SecondsRemaining));
         }
 
         private void Connect()
@@ -120,12 +149,12 @@ namespace Client.ViewModels
             }
             else
             {
-                
+
                 _clientService.UpdateCredentials(ServerIp, UserName, localIp); // ¡Añade este método a ClientService!
             }
-           
+
             _clientService.SendRegistration();
-           
+
 
             _clientService.MensajeRegistradoReceived += () =>
             {
@@ -166,7 +195,7 @@ namespace Client.ViewModels
             {
                 UserName = UserName,
                 SelectedOption = resp,
-                IpAdress=GetLocalIpAddress(),
+                IpAdress = GetLocalIpAddress(),
 
             };
 
@@ -191,9 +220,11 @@ namespace Client.ViewModels
             CurrentQuestion = question.Question;
             CurrentOptions = question.Options;
 
+            SecondsRemaining = 11;
             OnPropertyChanged(nameof(CurrentQuestion));
             OnPropertyChanged(nameof(CurrentOptions));
-           
+            _timer.Start();
+            OnPropertyChanged(nameof(SecondsRemaining));
         }
 
         private void OnResultReceived(object sender, ResultDTO result)
